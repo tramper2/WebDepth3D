@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web AI Voxelizer - 2D to 3D</title>
   <meta name="description" content="브라우저 기반 온디바이스 AI로 2D 이미지를 3D 복셀로 변환하세요.">
-  <script type="module" crossorigin src="/WebDepth3D/assets/index-DVuk6jFD.js"></script>
+  <script type="module" crossorigin src="/WebDepth3D/assets/index-D8KecMQ3.js"></script>
   <link rel="stylesheet" crossorigin href="/WebDepth3D/assets/index-B_fQZzMN.css">
 </head>
 <body>
@@ -36,22 +36,8 @@
       </nav>
     </header>
 
-    <!-- 우측 대형 타이포그래피 및 설명 -->
+    <!-- 우측 컨트롤 패널 -->
     <div class="hero-text-container">
-      <div class="hero-subtitle">ML PIPELINE</div>
-      <h1 class="hero-title">
-        <span class="outline-text">DEPTH</span><br>
-        PIPELINE
-      </h1>
-      <p class="hero-description">
-        Monocular depth estimation running entirely in your browser<br>via WebAssembly.
-      </p>
-      <p class="hero-subtext">
-        Depth Anything V2 Small (ONNX) runs inference on each webcam<br>
-        frame. The resulting depth map is normalized and fed as<br>
-        displacement data to the voxel shader.
-      </p>
-      
       <!-- 컨트롤 버튼들 (디자인에 맞게 작고 세련되게 배치) -->
       <div class="modern-controls">
         <button id="webcam-toggle-btn" class="modern-btn">
@@ -70,6 +56,10 @@
         <div class="slider-wrapper">
           <label>AI Resolution <span id="res-value">256</span></label>
           <input type="range" id="res-slider" min="64" max="256" step="16" value="256">
+        </div>
+        <div class="slider-wrapper">
+          <label>Voxel Grid <span id="grid-value">256</span></label>
+          <input type="range" id="grid-slider" min="32" max="256" step="16" value="256">
         </div>
         <div class="slider-wrapper">
           <label>Voxel Color <span id="color-value">Green</span></label>
