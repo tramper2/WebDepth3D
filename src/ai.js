@@ -178,6 +178,15 @@ class AIManager {
   }
 
   /**
+   * 실제로 모델이 구동 중인 장치 정보를 반환합니다.
+   * @returns {string} 'webgpu', 'wasm' 등
+   */
+  getActualDevice() {
+    if (!this.depthEstimator) return 'none';
+    return this.depthEstimator.model.device || 'unknown';
+  }
+
+  /**
    * 사용할 연산 장치를 설정합니다.
    * @param {boolean} useGPU - true면 WebGPU, false면 WASM
    */

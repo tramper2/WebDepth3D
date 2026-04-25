@@ -108,7 +108,14 @@ class App {
       aiManager.setDevice(useGPU);
       await this.initAI();
 
-      // 3. 웹캠 재시작 (필요한 경우)
+      // 3. 실제 로드된 장치 확인 (WebGPU 요청 시 체크)
+      if (useGPU && aiManager.getActualDevice() !== 'webgpu') {
+        uiManager.showError('WebGPU 가속 활성화에 실패하여 WASM(CPU) 모드로 전환되었습니다.');
+        uiManager.gpuToggle.checked = false;
+        aiManager.setDevice(false);
+      }
+
+      // 4. 웹캠 재시작 (필요한 경우)
       if (wasWebcamActive) {
         await this.startWebcam();
       }
