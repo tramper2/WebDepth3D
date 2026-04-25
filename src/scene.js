@@ -22,6 +22,7 @@ class SceneManager {
     this.container = null;
     this.isInitialized = false;
     this.animationId = null;
+    this.voxelHue = 140; // 기본 초록색 계열 (HSL 140)
   }
 
   /**
@@ -151,7 +152,8 @@ class SceneManager {
 
     if (depthData && depthData.length === TOTAL_VOXELS) {
       const color = new THREE.Color();
-      const nearColor = new THREE.Color('#00ff66'); // 가까운 곳: 네온 그린
+      // HSL을 사용하여 실시간으로 근접 색상 계산
+      const nearColor = new THREE.Color().setHSL(this.voxelHue / 360, 0.8, 0.5); 
       const farColor = new THREE.Color('#051024');  // 먼 곳: 딥 블루
 
       for (let i = 0; i < TOTAL_VOXELS; i++) {
@@ -178,6 +180,14 @@ class SceneManager {
     if (this.instancedMesh && this.instancedMesh.material.userData.shader) {
       this.instancedMesh.material.userData.shader.uniforms.uDepthScale.value = scale;
     }
+  }
+
+  /**
+   * 복셀 색상 테마(Hue)를 설정합니다.
+   * @param {number} hue - HSL 색상값 (0-360)
+   */
+  setVoxelHue(hue) {
+    this.voxelHue = hue;
   }
 
   /**

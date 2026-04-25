@@ -181,11 +181,11 @@ body {
   letter-spacing: 1px;
 }
 
-#depth-value, #res-value {
+#depth-value, #res-value, #color-value {
   color: var(--text-color);
 }
 
-#depth-slider, #res-slider {
+#depth-slider, #res-slider, #color-slider {
   width: 100%;
   height: 2px;
   appearance: none;
@@ -194,7 +194,7 @@ body {
   outline: none;
 }
 
-#depth-slider::-webkit-slider-thumb, #res-slider::-webkit-slider-thumb {
+#depth-slider::-webkit-slider-thumb, #res-slider::-webkit-slider-thumb, #color-slider::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
   width: 12px;

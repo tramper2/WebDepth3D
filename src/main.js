@@ -80,6 +80,10 @@ class App {
       }
     });
 
+    uiManager.onColorSliderChange((hue) => {
+      sceneManager.setVoxelHue(hue);
+    });
+
     uiManager.onFileInputChange(async (file) => {
       // 웹캠이 실행 중이면 중단
       if (this.isWebcamActive) {

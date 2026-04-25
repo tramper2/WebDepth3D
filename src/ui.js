@@ -13,6 +13,8 @@ class UIManager {
     this.depthValue = null;
     this.resSlider = null;
     this.resValue = null;
+    this.colorSlider = null;
+    this.colorValue = null;
     this.fileInput = null;
     this.sampleBtn = null;
     this.webcamToggleBtn = null;
@@ -52,6 +54,9 @@ class UIManager {
     
     this.resSlider = document.getElementById('res-slider');
     this.resValue = document.getElementById('res-value');
+
+    this.colorSlider = document.getElementById('color-slider');
+    this.colorValue = document.getElementById('color-value');
 
     this.fileInput = document.getElementById('file-input');
     this.sampleBtn = document.getElementById('sample-btn');
@@ -169,6 +174,29 @@ class UIManager {
           this.resValue.textContent = value;
         }
         callback(value);
+      });
+    }
+  }
+
+  /**
+   * 컬러 슬라이더 변경 이벤트 리스너를 추가합니다.
+   * @param {Function} callback - 변경 시 호출할 함수
+   */
+  onColorSliderChange(callback) {
+    if (this.colorSlider) {
+      this.colorSlider.addEventListener('input', (e) => {
+        const hue = parseInt(e.target.value);
+        if (this.colorValue) {
+          let colorName = "Color";
+          if (hue < 30 || hue >= 330) colorName = "Red";
+          else if (hue < 90) colorName = "Yellow";
+          else if (hue < 160) colorName = "Green";
+          else if (hue < 200) colorName = "Cyan";
+          else if (hue < 260) colorName = "Blue";
+          else colorName = "Purple";
+          this.colorValue.textContent = colorName;
+        }
+        callback(hue);
       });
     }
   }
