@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web AI Voxelizer - 2D to 3D</title>
   <meta name="description" content="브라우저 기반 온디바이스 AI로 2D 이미지를 3D 복셀로 변환하세요.">
-  <script type="module" crossorigin src="/WebDepth3D/assets/index-Czfpb7XI.js"></script>
-  <link rel="stylesheet" crossorigin href="/WebDepth3D/assets/index-Cdi8MitV.css">
+  <script type="module" crossorigin src="/WebDepth3D/assets/index-hEfqLHRP.js"></script>
+  <link rel="stylesheet" crossorigin href="/WebDepth3D/assets/index-BPKd5Ie6.css">
 </head>
 <body>
   <!-- 로딩 오버레이 -->
@@ -71,11 +71,15 @@
           <label>AI Resolution <span id="res-value">256</span></label>
           <input type="range" id="res-slider" min="64" max="256" step="16" value="256">
         </div>
+        <div class="slider-wrapper">
+          <label>Voxel Color <span id="color-value">Green</span></label>
+          <input type="range" id="color-slider" min="0" max="360" step="1" value="140">
+        </div>
       </div>
     </div>
 
-    <!-- PIP 컨테이너 (우측 하단, 나란히 배치) -->
-    <div id="pip-container" class="pip-container hidden">
+    <!-- PIP 컨테이너 (좌측 하단, 나란히 배치) -->
+    <div id="pip-container" class="pip-container">
       <div class="pip-status-bar">
         <span>WASM-accelerated transformer inference</span>
         <div class="pip-stats">
