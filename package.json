@@ -1,0 +1,27 @@
+{
+  "name": "web-depth-3d",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Web AI Voxelizer - 2D 이미지를 3D 복셀로 변환하는 온디바이스 AI 웹 애플리케이션",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "webgl",
+    "threejs",
+    "ai",
+    "voxel",
+    "depth-estimation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "three": "^0.184.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
+  }
+}
