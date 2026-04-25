@@ -191,6 +191,17 @@ class SceneManager {
   }
 
   /**
+   * 복셀의 회전값을 설정합니다.
+   * @param {number} degrees - 회전 각도 (-180 ~ 180)
+   */
+  setVoxelRotation(degrees) {
+    if (this.instancedMesh) {
+      // Y축 기준으로 회전 (라디안 변환)
+      this.instancedMesh.rotation.y = (degrees * Math.PI) / 180;
+    }
+  }
+
+  /**
    * 렌더링 루프
    */
   animate() {

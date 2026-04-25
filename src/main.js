@@ -84,6 +84,36 @@ class App {
       sceneManager.setVoxelHue(hue);
     });
 
+    uiManager.onRotationSliderChange((degrees) => {
+      sceneManager.setVoxelRotation(degrees);
+    });
+
+    // GPU 토글 핸들러
+    uiManager.onGpuToggleChange(async (useGPU) => {
+      const isSupported = await aiManager.checkWebGPUSupport();
+      
+      if (useGPU && !isSupported) {
+        uiManager.showError('WebGPU is not supported on this browser/hardware.');
+        uiManager.gpuToggle.checked = false;
+        return;
+      }
+
+      // 1. 웹캠/프로세싱 중단
+      const wasWebcamActive = this.isWebcamActive;
+      if (wasWebcamActive) {
+        await this.stopWebcam();
+      }
+
+      // 2. AI 장치 설정 및 재로드
+      aiManager.setDevice(useGPU);
+      await this.initAI();
+
+      // 3. 웹캠 재시작 (필요한 경우)
+      if (wasWebcamActive) {
+        await this.startWebcam();
+      }
+    });
+
     uiManager.onFileInputChange(async (file) => {
       // 웹캠이 실행 중이면 중단
       if (this.isWebcamActive) {

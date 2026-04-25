@@ -15,6 +15,9 @@ class UIManager {
     this.resValue = null;
     this.colorSlider = null;
     this.colorValue = null;
+    this.rotationSlider = null;
+    this.rotationValue = null;
+    this.gpuToggle = null;
     this.fileInput = null;
     this.sampleBtn = null;
     this.webcamToggleBtn = null;
@@ -57,6 +60,11 @@ class UIManager {
 
     this.colorSlider = document.getElementById('color-slider');
     this.colorValue = document.getElementById('color-value');
+
+    this.rotationSlider = document.getElementById('rotation-slider');
+    this.rotationValue = document.getElementById('rotation-value');
+    
+    this.gpuToggle = document.getElementById('gpu-toggle');
 
     this.fileInput = document.getElementById('file-input');
     this.sampleBtn = document.getElementById('sample-btn');
@@ -197,6 +205,34 @@ class UIManager {
           this.colorValue.textContent = colorName;
         }
         callback(hue);
+      });
+    }
+  }
+
+  /**
+   * 회전 슬라이더 변경 이벤트 리스너를 추가합니다.
+   * @param {Function} callback - 변경 시 호출할 함수
+   */
+  onRotationSliderChange(callback) {
+    if (this.rotationSlider) {
+      this.rotationSlider.addEventListener('input', (e) => {
+        const value = parseInt(e.target.value);
+        if (this.rotationValue) {
+          this.rotationValue.textContent = value;
+        }
+        callback(value);
+      });
+    }
+  }
+
+  /**
+   * GPU 토글 변경 이벤트 리스너를 추가합니다.
+   * @param {Function} callback - 변경 시 호출할 함수
+   */
+  onGpuToggleChange(callback) {
+    if (this.gpuToggle) {
+      this.gpuToggle.addEventListener('change', (e) => {
+        callback(e.target.checked);
       });
     }
   }

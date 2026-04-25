@@ -38,11 +38,14 @@ class AIManager {
    * @returns {Promise<boolean>}
    */
   async checkWebGPUSupport() {
-    // 현재 Windows/Chrome 환경에서 Depth Anything V2 + WebGPU 결합 시
-    // 텐서 연산 버그로 인해 쓰레기값(가로줄무늬 패턴 등)이 반환되는 치명적인 문제가 확인됨.
-    // 안정성을 위해 강제로 WebAssembly(WASM) 백엔드를 사용하도록 설정합니다.
-    console.log('○ WebGPU disabled for stability, forcing WebAssembly backend');
-    this.useWebGPU = false;
+    if (typeof navigator !== 'undefined' && navigator.gpu) {
+      try {
+        const adapter = await navigator.gpu.requestAdapter();
+        if (adapter) return true;
+      } catch (e) {
+        console.warn('WebGPU adapter request failed:', e);
+      }
+    }
     return false;
   }
 
@@ -58,8 +61,16 @@ class AIManager {
     this.isLoading = true;
     this.onProgressCallback = onProgress;
 
-    // WebGPU 지원 확인
-    await this.checkWebGPUSupport();
+    // 기존 모델 정리 (메모리 해제)
+    if (this.depthEstimator) {
+      try {
+        // Transformers.js v3+ 에서는 dispose() 등이 있을 수 있지만 
+        // 여기서는 단순 참조 제거 및 가비지 컬렉션 유도
+        this.depthEstimator = null;
+      } catch (e) {
+        console.warn('Error disposing old estimator:', e);
+      }
+    }
 
     try {
       // Depth Anything V2 Small 모델 로드 (Edge 보존력 우수)
@@ -156,6 +167,15 @@ class AIManager {
    */
   isModelLoading() {
     return this.isLoading;
+  }
+
+  /**
+   * 사용할 연산 장치를 설정합니다.
+   * @param {boolean} useGPU - true면 WebGPU, false면 WASM
+   */
+  setDevice(useGPU) {
+    this.useWebGPU = useGPU;
+    this.isModelLoaded = false; // 장치가 바뀌었으므로 다시 로드 필요
   }
 
   /**
