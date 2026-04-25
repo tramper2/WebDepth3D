@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web AI Voxelizer - 2D to 3D</title>
+  <meta name="description" content="브라우저 기반 온디바이스 AI로 2D 이미지를 3D 복셀로 변환하세요.">
+  <script type="module" crossorigin src="/WebDepth3D/assets/index-Czfpb7XI.js"></script>
+  <link rel="stylesheet" crossorigin href="/WebDepth3D/assets/index-Cdi8MitV.css">
+</head>
+<body>
+  <!-- 로딩 오버레이 -->
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <p id="loading-text" class="loading-text">AI 모델 로딩 중...</p>
+      <p id="loading-progress" class="loading-progress">0%</p>
+    </div>
+  </div>
+
+  <!-- 메인 컨테이너 -->
+  <div id="app-container">
+    <!-- 캔버스 컨테이너 -->
+    <canvas id="voxel-canvas"></canvas>
+
+    <!-- 숨겨진 비디오 엘리먼트 (웹캠 스트림 처리용) -->
+    <video id="webcam-video" autoplay playsinline muted style="position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px;"></video>
+
+    <!-- 상단 네비게이션바 -->
+    <header class="app-header">
+      <div class="logo">DEPTH ML</div>
+      <nav class="nav-links">
+        <a href="#" class="active">OVERVIEW</a>
+        <a href="#">PIPELINE</a>
+        <a href="#">EXTRUSION</a>
+      </nav>
+    </header>
+
+    <!-- 우측 대형 타이포그래피 및 설명 -->
+    <div class="hero-text-container">
+      <div class="hero-subtitle">ML PIPELINE</div>
+      <h1 class="hero-title">
+        <span class="outline-text">DEPTH</span><br>
+        PIPELINE
+      </h1>
+      <p class="hero-description">
+        Monocular depth estimation running entirely in your browser<br>via WebAssembly.
+      </p>
+      <p class="hero-subtext">
+        Depth Anything V2 Small (ONNX) runs inference on each webcam<br>
+        frame. The resulting depth map is normalized and fed as<br>
+        displacement data to the voxel shader.
+      </p>
+      
+      <!-- 컨트롤 버튼들 (디자인에 맞게 작고 세련되게 배치) -->
+      <div class="modern-controls">
+        <button id="webcam-toggle-btn" class="modern-btn">
+          <span id="webcam-btn-text">Start Webcam</span>
+        </button>
+        <label for="file-input" class="modern-btn">
+          <span>Upload Image</span>
+        </label>
+        <input type="file" id="file-input" accept="image/jpeg,image/png" hidden>
+        <button id="sample-btn" class="modern-btn outline">Test Sample</button>
+        
+        <div class="slider-wrapper">
+          <label>Depth Scale <span id="depth-value">1.0</span></label>
+          <input type="range" id="depth-slider" min="0" max="3" step="0.01" value="1">
+        </div>
+        <div class="slider-wrapper">
+          <label>AI Resolution <span id="res-value">256</span></label>
+          <input type="range" id="res-slider" min="64" max="256" step="16" value="256">
+        </div>
+      </div>
+    </div>
+
+    <!-- PIP 컨테이너 (우측 하단, 나란히 배치) -->
+    <div id="pip-container" class="pip-container hidden">
+      <div class="pip-status-bar">
+        <span>WASM-accelerated transformer inference</span>
+        <div class="pip-stats">
+          <span>W 256</span>
+          <span>H 256</span>
+          <span id="fps-counter">0 FPS</span>
+        </div>
+      </div>
+      <div class="pip-videos">
+        <div class="pip-item">
+          <div class="pip-label">DEPTH</div>
+          <canvas id="depth-pip" width="160" height="120"></canvas>
+        </div>
+        <div class="pip-item">
+          <div class="pip-label">WEBCAM</div>
+          <canvas id="webcam-pip" width="160" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 에러 메시지 오버레이 -->
+  <div id="error-overlay" class="error-overlay hidden">
+    <div class="error-content">
+      <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <p id="error-text" class="error-text"></p>
+      <button id="error-close" class="error-close">닫기</button>
+    </div>
+  </div>
+
+</body>
+</html>
