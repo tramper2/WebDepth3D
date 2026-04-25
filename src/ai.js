@@ -96,8 +96,8 @@ class AIManager {
         modelOptions
       );
 
-      // 실제 할당된 장치 확인 (Transformers.js 내부 정보 확인)
-      const actualDevice = this.depthEstimator.model.device || 'unknown';
+      // 실제 할당된 장치 확인 (Transformers.js v4에서는 model.device가 없을 수 있음)
+      const actualDevice = this.depthEstimator.model.device || (this.useWebGPU ? 'webgpu' : 'wasm');
       console.log(`✓ Depth Anything V2 Small model loaded on: ${actualDevice}`);
       
       if (modelOptions.device === 'webgpu' && actualDevice !== 'webgpu') {
@@ -183,7 +183,7 @@ class AIManager {
    */
   getActualDevice() {
     if (!this.depthEstimator) return 'none';
-    return this.depthEstimator.model.device || 'unknown';
+    return this.depthEstimator.model.device || (this.useWebGPU ? 'webgpu' : 'wasm');
   }
 
   /**
