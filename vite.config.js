@@ -35,6 +35,6 @@ export default defineConfig({
 
   // 전역 변수 정의
   define: {
-    'global': 'typeof global !== "undefined" ? global : self'
+    global: 'globalThis'
   }
 });
