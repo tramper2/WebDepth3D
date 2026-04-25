@@ -106,7 +106,7 @@ class App {
 
       // 2. AI 장치 설정 및 재로드
       aiManager.setDevice(useGPU);
-      await this.initAI();
+      await this.loadAIModel();
 
       // 3. 실제 로드된 장치 확인 (WebGPU 요청 시 체크)
       if (useGPU && aiManager.getActualDevice() !== 'webgpu') {
