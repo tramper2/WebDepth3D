@@ -40,5 +40,7 @@
 
 # 최종작업 완료후
 깃헙에 배포할 readme.md에 자세한 내용을 기술하여 작성한다
-
+로컬실행
 npm run dev
+깃헙서버 실행
+https://tramper2.github.io/WebDepth3D/
