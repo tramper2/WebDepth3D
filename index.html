@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web AI Voxelizer - 2D to 3D</title>
   <meta name="description" content="브라우저 기반 온디바이스 AI로 2D 이미지를 3D 복셀로 변환하세요.">
-  <script type="module" crossorigin src="/WebDepth3D/assets/index-B61zglGd.js"></script>
-  <link rel="stylesheet" crossorigin href="/WebDepth3D/assets/index-DJmmBJRC.css">
+  <script type="module" crossorigin src="/WebDepth3D/assets/index-CRTCuzZW.js"></script>
+  <link rel="stylesheet" crossorigin href="/WebDepth3D/assets/index-B_fQZzMN.css">
 </head>
 <body>
   <!-- 로딩 오버레이 -->
@@ -75,6 +75,15 @@
           <label>Voxel Color <span id="color-value">Green</span></label>
           <input type="range" id="color-slider" min="0" max="360" step="1" value="140">
         </div>
+        
+        <!-- GPU 토글 추가 -->
+        <div class="toggle-wrapper">
+          <label class="modern-toggle">
+            <input type="checkbox" id="gpu-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">GPU ACCELERATION (BETA)</span>
+        </div>
       </div>
     </div>
 
@@ -88,6 +97,13 @@
           <span id="fps-counter">0 FPS</span>
         </div>
       </div>
+      
+      <!-- 회전 슬라이더 추가 -->
+      <div class="pip-rotation-control">
+        <label>Rotation <span id="rotation-value">0</span>°</label>
+        <input type="range" id="rotation-slider" min="-180" max="180" step="1" value="0">
+      </div>
+
       <div class="pip-videos">
         <div class="pip-item">
           <div class="pip-label">DEPTH</div>
