@@ -121,9 +121,10 @@ class AIManager {
    * 캔버스 이미지에서 깊이 맵을 추론합니다.
    * @param {HTMLCanvasElement} canvasElement
    * @param {number} resolution - 추론 시 사용할 해상도 (AI 연산 속도 조절용)
-   * @returns {Promise<Float32Array>} 깊이 데이터 (0~1 범위, 256x256 해상도로 정규화됨)
+   * @param {number} gridSize - 씬 매니저에서 사용할 그리드 크기 (기본 256)
+   * @returns {Promise<Float32Array>} 깊이 데이터 (0~1 범위)
    */
-  async estimateDepth(canvasElement, resolution = 256) {
+  async estimateDepth(canvasElement, resolution = 256, gridSize = 256) {
     if (!this.depthEstimator) {
       throw new Error('Depth estimator not loaded');
     }
@@ -139,8 +140,8 @@ class AIManager {
       const depthMap = result.depth;
       const channels = depthMap.channels || 1; // 기본적으로 1채널이라고 가정
 
-      // 씬 매니저가 기대하는 정확한 256x256 (65536) 크기로 고정 샘플링
-      const expectedSize = 256;
+      // 씬 매니저가 기대하는 정확한 크기로 고정 샘플링
+      const expectedSize = gridSize;
       const depthArray = new Float32Array(expectedSize * expectedSize);
 
       for (let y = 0; y < expectedSize; y++) {

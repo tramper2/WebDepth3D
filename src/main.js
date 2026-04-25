@@ -25,6 +25,7 @@ class App {
     this.isProcessing = false; // 추론 중 플래그
     this.consecutiveErrors = 0; // 연속 에러 카운트 (무한 루프 방지)
     this.aiResolution = 256; // AI 연산 해상도 (기본 256)
+    this.voxelGridSize = 256; // 복셀 그리드 해상도 (기본 256)
 
     // 프레임 처리 최적화를 위한 캔버스 (재사용)
     this.processingCanvas = null;
@@ -68,7 +69,7 @@ class App {
       sceneManager.setDepthScale(value);
     });
 
-    // 파일 업로드
+    // 파일 업로드 (원래 주석이지만 해상도 슬라이더 이벤트임)
     uiManager.onResSliderChange((value) => {
       this.aiResolution = value;
       // PIP UI에 해상도 업데이트
@@ -78,6 +79,11 @@ class App {
         // fpsCounter 엘리먼트 참조 갱신
         uiManager.fpsCounter = document.getElementById('fps-counter');
       }
+    });
+
+    uiManager.onGridSliderChange((value) => {
+      this.voxelGridSize = value;
+      sceneManager.setGridSize(value);
     });
 
     uiManager.onColorSliderChange((hue) => {
@@ -221,18 +227,15 @@ class App {
     uiManager.showLoading('깊이 분석 중...');
 
     try {
-      // 이미지를 256x256으로 리사이징
+      // 이미지를 256x256으로 리사이징 (AI 해상도에 맞춤, 여기서는 단순 처리)
       const resizedCanvas = resizeImage(image, 256, 256);
 
-      // RGB 색상 데이터 추출
-      const colorData = canvasToColorArray(resizedCanvas);
-
       // AI 깊이 추론
-      const depthData = await aiManager.estimateDepth(resizedCanvas);
+      const depthData = await aiManager.estimateDepth(resizedCanvas, this.aiResolution, this.voxelGridSize);
 
       // 복셀 데이터 업데이트
       sceneManager.createVoxelGrid();
-      sceneManager.updateVoxelData(colorData, depthData);
+      sceneManager.updateVoxelData(null, depthData);
 
       // 슬라이더 초기화
       uiManager.setDepthSliderValue(1.0);
@@ -393,14 +396,11 @@ class App {
       // 1. 프레임 캡처 (즉시 256x256으로 리사이징)
       const frameCanvas = await this.captureResizedFrame();
 
-      // 2. RGB 색상 데이터 추출
-      const colorData = canvasToColorArray(frameCanvas);
+      // 2. AI 깊이 추론 (가장 무거운 연산, 해상도 파라미터 전달)
+      const depthData = await aiManager.estimateDepth(frameCanvas, this.aiResolution, this.voxelGridSize);
 
-      // 3. AI 깊이 추론 (가장 무거운 연산, 해상도 파라미터 전달)
-      const depthData = await aiManager.estimateDepth(frameCanvas, this.aiResolution);
-
-      // 4. 복셀 데이터 업데이트 (Three.js)
-      sceneManager.updateVoxelData(colorData, depthData);
+      // 3. 복셀 데이터 업데이트 (Three.js)
+      sceneManager.updateVoxelData(null, depthData);
 
       // 5. PIP 깊이 맵 업데이트
       this.updatePipDepthMap(depthData);
@@ -479,10 +479,10 @@ class App {
     // 깊이 데이터를 그레이스케일로 변환 (정확한 2D 좌표 변환 사용)
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        // PIP 캔버스 좌표를 256x256 원본 좌표로 변환
-        const srcX = Math.floor((x / width) * 256);
-        const srcY = Math.floor((y / height) * 256);
-        const depthIndex = srcY * 256 + srcX;
+        // PIP 캔버스 좌표를 gridSize x gridSize 좌표로 변환
+        const srcX = Math.floor((x / width) * this.voxelGridSize);
+        const srcY = Math.floor((y / height) * this.voxelGridSize);
+        const depthIndex = srcY * this.voxelGridSize + srcX;
         
         const i = y * width + x;
         const depthValue = Math.floor(depthData[depthIndex] * 255);

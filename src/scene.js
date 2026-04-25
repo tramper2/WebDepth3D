@@ -6,9 +6,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-// 복셀 그리드 설정
-const GRID_SIZE = 256;
-const TOTAL_VOXELS = GRID_SIZE * GRID_SIZE;
+// 복셀 그리드 기본 설정 (클래스 인스턴스 프로퍼티로 이동)
 
 class SceneManager {
   constructor() {
@@ -23,6 +21,9 @@ class SceneManager {
     this.isInitialized = false;
     this.animationId = null;
     this.voxelHue = 140; // 기본 초록색 계열 (HSL 140)
+    
+    this.gridSize = 256;
+    this.TOTAL_VOXELS = this.gridSize * this.gridSize;
   }
 
   /**
@@ -93,20 +94,21 @@ class SceneManager {
       color: 0xffffff
     });
 
-    // InstancedMesh 생성: 65,536개 큐브를 단일 드로우 콜로 렌더링
-    this.instancedMesh = new THREE.InstancedMesh(geometry, material, TOTAL_VOXELS);
+    // InstancedMesh 생성: TOTAL_VOXELS 큐브를 단일 드로우 콜로 렌더링
+    this.instancedMesh = new THREE.InstancedMesh(geometry, material, this.TOTAL_VOXELS);
     this.instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
     // 깊이 속성 추가 (셰이더에서 사용)
-    const depthArray = new Float32Array(TOTAL_VOXELS);
+    const depthArray = new Float32Array(this.TOTAL_VOXELS);
     this.depthAttribute = new THREE.InstancedBufferAttribute(depthArray, 1);
     this.instancedMesh.geometry.setAttribute('aDepth', this.depthAttribute);
 
-    // 셰이더 커스터마이징
+    // 셰이더 커스터마이징 (가장 중요한 GPU 최적화 부분)
     material.onBeforeCompile = (shader) => {
       shader.vertexShader = `
         attribute float aDepth;
         uniform float uDepthScale;
+        varying float vDepth;
         ${shader.vertexShader}
       `;
 
@@ -114,21 +116,39 @@ class SceneManager {
         '#include <begin_vertex>',
         `
         #include <begin_vertex>
+        vDepth = aDepth / 50.0; // 0.0 ~ 1.0 범위 정규화 (updateVoxelData에서 * 50 하므로)
         transformed.z += aDepth * uDepthScale;
         `
       );
 
+      shader.fragmentShader = `
+        uniform vec3 uNearColor;
+        uniform vec3 uFarColor;
+        varying float vDepth;
+        ${shader.fragmentShader}
+      `;
+      
+      shader.fragmentShader = shader.fragmentShader.replace(
+        'vec4 diffuseColor = vec4( diffuse, opacity );',
+        `
+        vec3 finalColor = mix(uFarColor, uNearColor, vDepth);
+        vec4 diffuseColor = vec4( finalColor, opacity );
+        `
+      );
+
       shader.uniforms.uDepthScale = { value: this.depthScale };
+      shader.uniforms.uNearColor = { value: new THREE.Color().setHSL(this.voxelHue / 360, 0.8, 0.5) };
+      shader.uniforms.uFarColor = { value: new THREE.Color('#051024') };
       material.userData.shader = shader;
     };
 
     // 초기 위치 설정 (중앙 정렬)
     const dummy = new THREE.Object3D();
-    const offset = GRID_SIZE / 2;
+    const offset = this.gridSize / 2;
 
-    for (let i = 0; i < TOTAL_VOXELS; i++) {
-      const x = (i % GRID_SIZE) - offset;
-      const y = Math.floor(i / GRID_SIZE) - offset;
+    for (let i = 0; i < this.TOTAL_VOXELS; i++) {
+      const x = (i % this.gridSize) - offset;
+      const y = Math.floor(i / this.gridSize) - offset;
       const z = 0;
 
       dummy.position.set(x, -y, z);
@@ -150,23 +170,12 @@ class SceneManager {
       this.createVoxelGrid();
     }
 
-    if (depthData && depthData.length === TOTAL_VOXELS) {
-      const color = new THREE.Color();
-      // HSL을 사용하여 실시간으로 근접 색상 계산
-      const nearColor = new THREE.Color().setHSL(this.voxelHue / 360, 0.8, 0.5); 
-      const farColor = new THREE.Color('#051024');  // 먼 곳: 딥 블루
-
-      for (let i = 0; i < TOTAL_VOXELS; i++) {
-        // 1. Z축 깊이 이동
+    if (depthData && depthData.length === this.TOTAL_VOXELS) {
+      for (let i = 0; i < this.TOTAL_VOXELS; i++) {
+        // Z축 깊이 이동만 JS에서 처리. (색상 혼합은 GPU 셰이더가 처리)
         this.depthAttribute.setX(i, depthData[i] * 50); 
-        
-        // 2. 뎁스 기반 컬러 스타일링 (웹캠 텍스처 대신 적용)
-        // depthData[i] 값(0~1)에 따라 farColor와 nearColor 사이를 부드럽게 섞음
-        color.lerpColors(farColor, nearColor, depthData[i]);
-        this.instancedMesh.setColorAt(i, color);
       }
       this.depthAttribute.needsUpdate = true;
-      this.instancedMesh.instanceColor.needsUpdate = true;
     }
   }
 
@@ -188,6 +197,22 @@ class SceneManager {
    */
   setVoxelHue(hue) {
     this.voxelHue = hue;
+    if (this.instancedMesh && this.instancedMesh.material.userData.shader) {
+      const nearColor = new THREE.Color().setHSL(hue / 360, 0.8, 0.5);
+      this.instancedMesh.material.userData.shader.uniforms.uNearColor.value = nearColor;
+    }
+  }
+
+  /**
+   * 그리드 사이즈를 변경합니다.
+   * @param {number} size - 그리드 해상도 (예: 128, 256)
+   */
+  setGridSize(size) {
+    if (this.gridSize === size) return;
+    this.gridSize = size;
+    this.TOTAL_VOXELS = size * size;
+    // 그리드 변경 시 씬 재생성
+    this.createVoxelGrid();
   }
 
   /**

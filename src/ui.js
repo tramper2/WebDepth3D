@@ -13,6 +13,8 @@ class UIManager {
     this.depthValue = null;
     this.resSlider = null;
     this.resValue = null;
+    this.gridSlider = null;
+    this.gridValue = null;
     this.colorSlider = null;
     this.colorValue = null;
     this.rotationSlider = null;
@@ -57,6 +59,9 @@ class UIManager {
     
     this.resSlider = document.getElementById('res-slider');
     this.resValue = document.getElementById('res-value');
+
+    this.gridSlider = document.getElementById('grid-slider');
+    this.gridValue = document.getElementById('grid-value');
 
     this.colorSlider = document.getElementById('color-slider');
     this.colorValue = document.getElementById('color-value');
@@ -180,6 +185,22 @@ class UIManager {
         const value = parseInt(e.target.value);
         if (this.resValue) {
           this.resValue.textContent = value;
+        }
+        callback(value);
+      });
+    }
+  }
+
+  /**
+   * 그리드 슬라이더 변경 이벤트 리스너를 추가합니다.
+   * @param {Function} callback - 변경 시 호출할 함수
+   */
+  onGridSliderChange(callback) {
+    if (this.gridSlider) {
+      this.gridSlider.addEventListener('input', (e) => {
+        const value = parseInt(e.target.value);
+        if (this.gridValue) {
+          this.gridValue.textContent = value;
         }
         callback(value);
       });
