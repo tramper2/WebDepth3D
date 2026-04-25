@@ -88,16 +88,24 @@ class AIManager {
         }
       };
 
+      console.log(`○ Attempting to load model on device: ${modelOptions.device} (${modelOptions.dtype})`);
+
       this.depthEstimator = await pipeline(
         'depth-estimation',
         'onnx-community/depth-anything-v2-small',
         modelOptions
       );
 
+      // 실제 할당된 장치 확인 (Transformers.js 내부 정보 확인)
+      const actualDevice = this.depthEstimator.model.device || 'unknown';
+      console.log(`✓ Depth Anything V2 Small model loaded on: ${actualDevice}`);
+      
+      if (modelOptions.device === 'webgpu' && actualDevice !== 'webgpu') {
+        console.warn('⚠️ WebGPU requested but fallback to WASM occurred.');
+      }
+
       this.isModelLoaded = true;
       this.isLoading = false;
-
-      console.log('✓ Depth Anything V2 Small model loaded successfully');
 
       if (this.onProgressCallback) {
         this.onProgressCallback(100);
